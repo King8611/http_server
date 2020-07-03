@@ -4,26 +4,86 @@
 #include<stdio.h>
 #include<thread>
 #include<sys/epoll.h>
+#include<regex>
+#define FILE_PATH "www"
+using std::string;
 class TCPThread{
 	XTcp client;
 public:
 	TCPThread(XTcp _client):client(_client){}
-	void main(){
-		for(;;){
-			char buff[1024];
-			int recvlen=client.recv(buff,sizeof(buff)-1);
-			if(recvlen<=0)break;
-			if(buff[0]=='q'&&buff[1]=='u'&&buff[2]=='i'&&buff[3]=='t'){
-				char *re="quit success.\n";
-				client.send(re,sizeof(re));
-				break;
-			}
-			buff[recvlen]=0;
-			printf("%s",buff);
-			client.send("ok\n",4);
-		}
+	void close(){
 		client.close();
 		delete this;
+	}
+	void main(){
+		char buff[2048];
+		int buff_size=client.recv(buff,strlen(buff)-1);
+		if(buff_size<=0){
+			close();
+		}
+		printf("==============:recv:================\n");
+		printf("%s\n",buff);
+		printf("==============:end:================\n");
+	
+// GET / HTTP/1.1
+// Host: 127.0.0.1:8080
+// Connection: keep-alive
+// Upgrade-Insecure-Requests: 1
+// User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36
+// Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+// Sec-Fetch-Site: none
+// Sec-Fetch-Mode: navigate
+// Sec-Fetch-User: ?1
+// Sec-Fetch-Dest: document
+// Accept-Encoding: gzip, deflate, br
+// Accept-Language: zh-CN,zh;q=0.9
+		std::string str=buff;
+		std::string pattern="^([A-Z]+) (.+) HTTP/1";
+		std::smatch mas;
+		std::regex r(pattern);
+		std::regex_search(str,mas,r);
+		if(mas.size()==0){
+			printf("%s failed!\n",pattern.c_str());
+			close();
+			return ;
+		}
+		string type=mas[1];
+		string path=mas[2];
+		if(type!="GET"){
+			close();
+			return ;
+		}
+		if(path=="/"){
+			path="/index.html";
+		}
+		path=FILE_PATH+path;
+		FILE *fp=fopen(path.c_str(),"rb");
+		if(fp==NULL){
+			close();
+			return;
+		}
+		//获取文件大小
+		fseek(fp,0,SEEK_END);
+		int filesize = ftell(fp);
+		fseek(fp,0,0);
+		printf("file size is %d\n",filesize);
+
+		//回应get头
+		string rmsg="HTTP/1.1 200OK\r\n";
+		rmsg+="Server:XHttp\r\n";
+		rmsg+="Content-Type:text/html\r\n";
+		rmsg+="Content-Length: ";
+		rmsg+=std::to_string(filesize);
+		rmsg+="\r\n\r\n";
+		int sendSize=client.send(rmsg.c_str(),rmsg.size());
+		printf("sendsize=%d\n",sendSize);
+		for(;;){
+			int len=fread(buff,1,sizeof(buff),fp);
+			if(len<=0)break;
+			int re=client.send(buff,len);
+			if(re<=0)break;
+		}
+		close();
 	}
 };
 int main(int argc,char **argv){
@@ -32,46 +92,21 @@ int main(int argc,char **argv){
 		port=atoi(argv[1]);
 	}
 	XTcp server;
+	server.createSocket();
 	if(!server.bind(port)){
 		exit(-1);
 	}
 
-	int epfd=epoll_create(256);
-
-	epoll_event ev;
-	ev.data.fd=server.sockfd;
-	ev.events=EPOLLIN|EPOLLET;
-	epoll_ctl(epfd,EPOLL_CTL_ADD,server.sockfd,&ev);
-
-	epoll_event events[20];
-	char buf[1024]={0};
-	const char* msg="HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\nhelloworld";
-	server.setBlock(false);
 	for(;;){
-		int count=epoll_wait(epfd,events,20,500);
-		if(count<=0)continue;
-		for(int i=0;i<count;i++){
-			if(events[i].data.fd==server.sockfd){
-				for(;;){
-					XTcp client=server.accept();
-					if(client.sockfd<=0)break;
-					ev.data.fd=client.sockfd;
-					ev.events=EPOLLIN|EPOLLET;
-					epoll_ctl(epfd,EPOLL_CTL_ADD,client.sockfd,&ev);
-				}
-			}else{
-				XTcp client;
-				client.sockfd=events[i].data.fd;
-				client.recv(buf,1024);
-				client.send(msg,strlen(msg));
-				epoll_ctl(epfd,EPOLL_CTL_DEL,client.sockfd,&ev);
-				client.close();
-			}
+		XTcp client;
+		client=server.accept();
+		if(client.sockfd<=0){
+			continue;
 		}
-		/*XTcp client=sever.accept();
-		TCPThread *th=new TCPThread(client);
-		std::thread sth(&TCPThread::main,th);
-		sth.detach();*/
+		printf("a new client come and ip=%s ,port=%d\n",client.ip.c_str(),client.port);
+		TCPThread *td=new TCPThread(client);
+		std::thread sth(&TCPThread::main,td);
+		sth.detach();
 	}
 	server.close();
 }

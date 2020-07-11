@@ -5,6 +5,8 @@
 #include<thread>
 #include<sys/epoll.h>
 #include<regex>
+#include"../include/XHttpServer.h"
+#include"../include/XHttpClient.h"
 #define FILE_PATH "www"
 using std::string;
 class TCPThread{
@@ -91,22 +93,8 @@ int main(int argc,char **argv){
 	if(argc>1){
 		port=atoi(argv[1]);
 	}
-	XTcp server;
-	server.createSocket();
-	if(!server.bind(port)){
-		exit(-1);
-	}
-
-	for(;;){
-		XTcp client;
-		client=server.accept();
-		if(client.sockfd<=0){
-			continue;
-		}
-		printf("a new client come and ip=%s ,port=%d\n",client.ip.c_str(),client.port);
-		TCPThread *td=new TCPThread(client);
-		std::thread sth(&TCPThread::main,td);
-		sth.detach();
-	}
-	server.close();
+	XHttpServer server;
+	server.start(port);
+	getchar();
+	return 0;
 }

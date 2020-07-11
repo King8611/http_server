@@ -1,5 +1,5 @@
-#ifndef XTCP
-#define XTCP
+#ifndef XTCP_H
+#define XTCP_H
 #include<string>
 class XTcp{
 public:

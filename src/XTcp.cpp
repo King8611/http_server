@@ -48,7 +48,7 @@ XTcp XTcp::accept(){
     tcp.ip=inet_ntoa(addr.sin_addr);
     tcp.port=ntohs(addr.sin_port);
     tcp.sockfd=client;
-    printf("client ip is %s,port is %d\n",tcp.ip.c_str(),tcp.port);
+    printf("client ip is %s,port is %d,sockfd is %d\n",tcp.ip.c_str(),tcp.port,client);
     return tcp;
 }
 void XTcp::close(){

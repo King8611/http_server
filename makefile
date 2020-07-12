@@ -4,7 +4,7 @@ client:./bin/XTcp.o ./src/client.cpp
 	g++ $^ -o ./bin/client
 
 server:./bin/XTcp.o ./bin/XHttpServer.o ./bin/XHttpClient.o ./bin/XHttpResponse.o ./src/server.cpp
-	g++ $^ -o ./bin/server $(CFLAGS)
+	g++ $^ -o $@ $(CFLAGS)
 
 ./bin/XHttpServer.o:./bin/XTcp.o ./bin/XHttpClient.o ./src/XHttpServer.cpp
 	g++ $^ -c $(CFLAGS)
@@ -24,4 +24,4 @@ server:./bin/XTcp.o ./bin/XHttpServer.o ./bin/XHttpClient.o ./bin/XHttpResponse.
 	mv XHttpResponse.o ./bin
 
 clean:
-	rm ./bin/*
+	rm ./bin/* server

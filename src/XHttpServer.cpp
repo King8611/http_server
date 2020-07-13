@@ -8,6 +8,7 @@ bool XHttpServer::start(unsigned short port){
     if(!server.bind(port)){
         return false;
     }
+    epoll.addfd(server.sockfd);
     std::thread sth(&XHttpServer::main,this);
     sth.detach();
     return true;
@@ -17,9 +18,10 @@ void XHttpServer::stop(){
 }
 void XHttpServer::main(){
     while(!isexit){
-        XTcp client=server.accept();
-        if(server.sockfd<=0)continue;
-		XHttpClient *th = new XHttpClient();
-		th->start(client);
+        int count=epoll.wait(500);
+        if(count<=0)continue;
+        for(int i=0;i<count;i++){
+            
+        }
     }
 }

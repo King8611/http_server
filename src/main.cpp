@@ -21,7 +21,7 @@ int main(int argc,char **argv){
         for(int i=0;i<count;i++){
             if(epoll.getEventOccurfd(i)==server.sockfd){
                 XTcp client=server.accept();
-                if(client.sockfd<=0)break;
+                if(client.sockfd<=0)continue;
                 epoll.addfd(client.sockfd);
             }else{
                 XTcp client;

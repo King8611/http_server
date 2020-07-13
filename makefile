@@ -1,27 +1,44 @@
-CFLAGS=-lpthread -g
-all:server
-client:./bin/XTcp.o ./src/client.cpp
-	g++ $^ -o ./bin/client
+SH=bash
+CONF_FILE=configure.sh
+CC=g++
+CCFLAGS=-I include -g
+AR=ar
+AR_FLAG=-crv
+SRC_FILE=$(wildcard src/*.cpp)
+OBJ_FILE:=$(subst .cpp,.o,$(SRC_FILE))
+LIB_DIR=lib
+LIB_FILE:=$(LIB_DIR)/libXHTTP.a
+LIB_FLAG=-L lib -lXHTTP -lpthread
+# EXAMPLE_FILE=client.bin server.bin
+EXAMPLE_FILE=example/server.bin
+.PHONY:configure example 
 
-server:./bin/XTcp.o ./bin/XHttpServer.o ./bin/XHttpClient.o ./bin/XHttpResponse.o ./src/server.cpp
-	g++ $^ -o $@ $(CFLAGS)
+#
+# run make configure before firstly build
+# run make to generate lib file
+# run make example to generate client and server binary file
+# run make clean to remove all generated file
+#
 
-./bin/XHttpServer.o:./bin/XTcp.o ./bin/XHttpClient.o ./src/XHttpServer.cpp
-	g++ $^ -c $(CFLAGS)
-	mv XHttpServer.o ./bin
+XHTTP:$(LIB_FILE)
 
-./bin/XHttpClient.o:./bin/XTcp.o ./bin/XHttpResponse.o ./src/XHttpClient.cpp
-	@echo "hello"
-	g++ $^ -c $(CFLAGS)
-	mv XHttpClient.o ./bin
+$(LIB_FILE):$(OBJ_FILE)
+	$(AR) $(AR_FLAG) $(LIB_FILE) $^
 
-./bin/XTcp.o: ./src/XTcp.cpp
-	g++   $^  -c 
-	mv XTcp.o ./bin
+.cpp.o:
+	$(CC) $(CC_FLAG) -c -o $@ $<
 
-./bin/XHttpResponse.o:./src/XHttpResponse.cpp
-	g++ $^ -c 
-	mv XHttpResponse.o ./bin
+configure:$(CONF_FILE)
+	$(SH) $^
 
+example:$(EXAMPLE_FILE)
+
+%.bin:%.cpp $(LIB_FILE)
+	$(CC) $(CCFLAGS) -o $@ $< $(LIB_FLAG)
+	
 clean:
-	rm ./bin/* server
+	rm -r $(LIB_DIR)
+	rm $(OBJ_FILE)
+	rm $(EXAMPLE_FILE)
+
+

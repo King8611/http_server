@@ -10,6 +10,17 @@
 #include <signal.h>
 using std::string;
 int main(int argc,char **argv){
+ /*
+        XTask *task=new XHttpClient();
+		XTcp client;
+		client.createSocket();
+		client.bind(9090);
+        task->SetData((void*)&client);
+        //threadPool.addTask(task);
+        delete task;
+		return 0;
+*/
+
 	signal(SIGPIPE,SIG_IGN);
 	unsigned short port=8080;
 	if(argc>1){

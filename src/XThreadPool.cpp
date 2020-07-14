@@ -5,6 +5,8 @@ using namespace std;
 bool XThreadPool::shutdown=false;
 pthread_mutex_t XThreadPool::pthreadMutex=PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t XThreadPool::pthreadCond=PTHREAD_COND_INITIALIZER;
+vector<XThread> XThreadPool::vecThread;
+vector<XTask*> XThreadPool::vecTask;
 XThreadPool::XThreadPool(int _threadNum):
 threadNum(_threadNum)
 {
@@ -38,8 +40,12 @@ void* XThreadPool::threadFunc(void * threadData){
             vecTask.erase(iter);
         }
         pthread_mutex_unlock(&pthreadMutex);
+
+
         if(task){
             task->run();
+            cout<<1<<endl;
+            delete task;
         }
         moveToldle(pThread);
     }
@@ -97,3 +103,13 @@ int XThreadPool::stopAll(){
     pthread_cond_destroy(&pthreadCond);
 }
 int XThreadPool::getTaskNum(){}
+
+XThread::XThread():isStat(0){}
+XThread::~XThread(){}
+bool XThread::operator==(const XThread &obj) const{
+     return (long)&pthread_id == (long)&obj.pthread_id;
+}
+
+XTask::~XTask(){
+}
+XTask::XTask(){}

@@ -1,12 +1,14 @@
 CFLAGS=-lpthread -g
-all:server
-client:./bin/XTcp.o ./src/client.cpp
-	g++ $^ -o ./bin/client
 
-server:./bin/XTcp.o ./bin/XHttpServer.o ./bin/XHttpClient.o ./bin/XHttpResponse.o ./src/server.cpp
+all:server main
+
+main:./bin/XEpoll.o ./bin/XTcp.o ./src/main.cpp 
+	g++ $^ -o $@ -g
+
+server:./bin/XTcp.o ./bin/XHttpServer.o ./bin/XHttpClient.o  ./bin/XEpoll.o ./bin/XThreadPool.o ./bin/XHttpResponse.o ./src/server.cpp
 	g++ $^ -o $@ $(CFLAGS)
 
-./bin/XHttpServer.o:./bin/XTcp.o ./bin/XHttpClient.o ./src/XHttpServer.cpp
+./bin/XHttpServer.o:./bin/XTcp.o ./bin/XHttpClient.o  ./bin/XEpoll.o  ./bin/XThreadPool.o ./src/XHttpServer.cpp
 	g++ $^ -c $(CFLAGS)
 	mv XHttpServer.o ./bin
 
@@ -23,5 +25,12 @@ server:./bin/XTcp.o ./bin/XHttpServer.o ./bin/XHttpClient.o ./bin/XHttpResponse.
 	g++ $^ -c 
 	mv XHttpResponse.o ./bin
 
+./bin/XEpoll.o:./src/XEpoll.cpp
+	g++ $^ -c
+	mv XEpoll.o ./bin
+
+./bin/XThreadPool.o:./src/XThreadPool.cpp
+	g++ $^ -c 
+	mv XThreadPool.o ./bin
 clean:
-	rm ./bin/* server
+	rm ./bin/* server main

@@ -63,13 +63,13 @@ bool XTcp::bind(unsigned short port){
     }
     addr.sin_family=AF_INET;
     addr.sin_port=htons(port);
-    printf("%d\n",port);
     addr.sin_addr.s_addr=htonl(0);
     if(::bind(sockfd,(sockaddr*)&addr,sizeof(addr))!=0){
         printf("bind port failed\n");
         return false;
     }
     printf("bind port %d sucess!\n",port);
+    this->port=port;
     listen(sockfd, 10);
     return true;
 }

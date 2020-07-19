@@ -19,7 +19,7 @@ int XEpoll::wait(int timeout){
         nReady=epoll_wait(epollfd,&*events.begin(),fdNumber,timeout);
 
         if(nReady==0){
-            printf("epoll_wait timeout.\n");
+           // printf("epoll_wait timeout.\n");
             return 0;
         }else if(nReady==-1){
             if(errno==EINTR){
@@ -78,4 +78,22 @@ uint32_t XEpoll::getEvents(int eventIndex) const{
         printf("parameter(s) error");
     }
     return events[eventIndex].events;
+}
+
+
+    //这里直接把fd对应为tcp信息
+bool XEpoll::addXTcp(XTcp xtcp,uint32_t events, bool ETorNot){
+    mp[xtcp.sockfd]=xtcp;
+    addfd(xtcp.sockfd,events,ETorNot);
+}
+    //删除一个fd
+bool XEpoll::delXTcp(XTcp xtcp){
+    mp.erase(xtcp.sockfd);
+    delfd(xtcp.sockfd);
+}
+
+XTcp XEpoll::getEventOccurXTcp(int eventIndex){
+    int fd=getEventOccurfd(eventIndex);
+    XTcp x=mp[fd];
+    return x;
 }

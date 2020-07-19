@@ -9,6 +9,7 @@ private:
     /* data */
 public:
     XHttpClient();
+    XHttpClient(XTcp x);
     virtual ~XHttpClient();
     bool start(XTcp client);
     void main();

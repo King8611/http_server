@@ -12,8 +12,11 @@ public:
         void main();
         XTcp server;
 private:
+        void run();
         bool isexit=false;
         XEpoll epoll;
         XThreadPool threadPool;
+        void handle(XTcp xtcp);
+        
 };
 #endif

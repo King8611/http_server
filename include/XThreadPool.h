@@ -3,7 +3,7 @@
 #include<thread>
 #include"XTask.h"
 #include<vector>
-
+#include"XEpoll.h"
 /*
             这个线程池是我网上找的板子，
             中间几个重要的函数用的是static变量
@@ -31,7 +31,9 @@ public:
     int stopAll();
     bool isAnyThreadBusy();
     int getTaskNum();
+    void setEpoll(XEpoll *);
 private:
+    XEpoll *epoll;
     int createThread();
     static int moveToldle(XThread *pthread);           //线程执行任务结束，状态置为1
     static int moveToBusy(XThread *pthread);       //线程开始执行状态置位1

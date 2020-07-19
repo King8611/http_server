@@ -104,12 +104,15 @@ int XThreadPool::stopAll(){
 }
 int XThreadPool::getTaskNum(){}
 
+void XThreadPool::setEpoll(XEpoll *epoll){
+    this->epoll=epoll;
+}
+
 XThread::XThread():isStat(0){}
 XThread::~XThread(){}
 bool XThread::operator==(const XThread &obj) const{
      return (long)&pthread_id == (long)&obj.pthread_id;
 }
-
 XTask::~XTask(){
 }
 XTask::XTask(){}

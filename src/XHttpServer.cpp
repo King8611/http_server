@@ -9,6 +9,7 @@ bool XHttpServer::start(unsigned short port){
     if(!server.bind(port)){
         return false;
     }
+    threadPool.setEpoll(&epoll);
     std::thread sth(&XHttpServer::main,this);
     sth.detach();
     return true;
@@ -18,10 +19,21 @@ void XHttpServer::stop(){
 }
 void XHttpServer::main(){
     while(!isexit){
-        XTcp client=server.accept();
-        if(server.sockfd<=0)continue;
-        XTask *task=new XHttpClient();
-        task->SetData((void*)&client);
-        threadPool.addTask(task);
+        epoll.addXTcp(server);
+        run();
+    }
+}
+void XHttpServer::run(){
+    int count=epoll.wait();
+    for(int i=0;i<count;i++){
+        XTcp xtcp=epoll.getEventOccurXTcp(i);
+    }
+}
+void XHttpServer::handle(XTcp xtcp){
+    if(xtcp.sockfd==server.sockfd){
+        
+    }else{
+        XHttpClient *client=new XHttpClient(xtcp);
+        threadPool.addTask(client);
     }
 }

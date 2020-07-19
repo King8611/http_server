@@ -11,7 +11,9 @@ XHttpClient::~XHttpClient()
 {
     Close();
 }
-
+ XHttpClient::XHttpClient(XTcp xtcp){
+     this->client=xtcp;
+ }
 int XHttpClient::run(){
     main();
     return 1;
@@ -33,9 +35,6 @@ bool XHttpClient::start(XTcp client){
     sth.detach();
     return true;
 }
-
-
-
 
 void XHttpClient::main(){
     char buff[10240];

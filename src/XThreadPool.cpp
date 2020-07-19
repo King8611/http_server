@@ -7,6 +7,7 @@ pthread_mutex_t XThreadPool::pthreadMutex=PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t XThreadPool::pthreadCond=PTHREAD_COND_INITIALIZER;
 vector<XThread> XThreadPool::vecThread;
 vector<XTask*> XThreadPool::vecTask;
+XEpoll* XThreadPool::epoll;
 XThreadPool::XThreadPool(int _threadNum):
 threadNum(_threadNum)
 {
@@ -44,7 +45,7 @@ void* XThreadPool::threadFunc(void * threadData){
 
         if(task){
             task->run();
-            cout<<1<<endl;
+            epoll->delXTcp(task->client);
             delete task;
         }
         moveToldle(pThread);
@@ -105,7 +106,7 @@ int XThreadPool::stopAll(){
 int XThreadPool::getTaskNum(){}
 
 void XThreadPool::setEpoll(XEpoll *epoll){
-    this->epoll=epoll;
+    XThreadPool::epoll=epoll;
 }
 
 XThread::XThread():isStat(0){}

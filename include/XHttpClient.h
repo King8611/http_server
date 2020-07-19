@@ -13,7 +13,6 @@ public:
     virtual ~XHttpClient();
     bool start(XTcp client);
     void main();
-    XTcp client;
     XHttpResponse res;
 
     

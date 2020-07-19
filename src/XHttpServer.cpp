@@ -18,20 +18,22 @@ void XHttpServer::stop(){
     isexit=true;
 }
 void XHttpServer::main(){
-    while(!isexit){
-        epoll.addXTcp(server);
+    epoll.addXTcp(server);
+    while(!isexit){    
         run();
     }
 }
 void XHttpServer::run(){
-    int count=epoll.wait();
+    int count=epoll.wait(500);
     for(int i=0;i<count;i++){
         XTcp xtcp=epoll.getEventOccurXTcp(i);
+        handle(xtcp);
     }
 }
 void XHttpServer::handle(XTcp xtcp){
     if(xtcp.sockfd==server.sockfd){
-        
+        XTcp client=xtcp.accept();
+        epoll.addXTcp(client);
     }else{
         XHttpClient *client=new XHttpClient(xtcp);
         threadPool.addTask(client);

@@ -33,12 +33,12 @@ public:
     int getTaskNum();
     void setEpoll(XEpoll *);
 private:
-    XEpoll *epoll;
     int createThread();
     static int moveToldle(XThread *pthread);           //线程执行任务结束，状态置为1
     static int moveToBusy(XThread *pthread);       //线程开始执行状态置位1
     static void* threadFunc(void * threadData);        // 线程回调函数
  
+    static XEpoll *epoll;
     static std::vector<XTask *>vecTask;                //线程列表  
     static std::vector<XThread>vecThread; 
     static bool shutdown;                                               //线程退出标志

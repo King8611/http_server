@@ -38,7 +38,7 @@ bool XHttpResponse::SetRequest(string request){
 string XHttpResponse::GetHead(){
     string rmsg="HTTP/1.1 200OK\r\n";
     rmsg+="Server:XHttp\r\n";
-    rmsg+="Content-Type:text/html\r\n";
+    rmsg+="Content-Type:text/html\r\n";     //在这里图片格式应该位jpg
 	rmsg+="Content-Length: ";
 	rmsg+=std::to_string(filesize);
 	rmsg+="\r\n\r\n";

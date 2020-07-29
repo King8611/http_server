@@ -42,10 +42,9 @@ void* XThreadPool::threadFunc(void * threadData){
         }
         pthread_mutex_unlock(&pthreadMutex);
 
-
+        std::cout<<task->client.sockfd<<"is run in pool"<<std::endl;
         if(task){
             task->run();
-            epoll->delXTcp(task->client);
             delete task;
         }
         moveToldle(pThread);
@@ -105,8 +104,8 @@ int XThreadPool::stopAll(){
 }
 int XThreadPool::getTaskNum(){}
 
-void XThreadPool::setEpoll(XEpoll *epoll){
-    XThreadPool::epoll=epoll;
+void XThreadPool::setEpoll(XEpoll *_epoll){
+    XThreadPool::epoll=_epoll;
 }
 
 XThread::XThread():isStat(0){}

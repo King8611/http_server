@@ -48,6 +48,7 @@ bool XEpoll::addfd(int fd,uint32_t events, bool ETorNot){
     ++fdNumber;
     return true;
 }
+#include<iostream>
 bool XEpoll::delfd(int fd){
     bzero(&event,sizeof(event));
     event.data.fd=fd;
@@ -83,13 +84,15 @@ uint32_t XEpoll::getEvents(int eventIndex) const{
 
     //这里直接把fd对应为tcp信息
 bool XEpoll::addXTcp(XTcp xtcp,uint32_t events, bool ETorNot){
+    std::cout<<xtcp.sockfd<<"is add"<<std::endl;
     mp[xtcp.sockfd]=xtcp;
-    addfd(xtcp.sockfd,events,ETorNot);
+    return addfd(xtcp.sockfd,events,ETorNot);
 }
     //删除一个fd
 bool XEpoll::delXTcp(XTcp xtcp){
+    std::cout<<xtcp.sockfd<<"is delete"<<std::endl;
     mp.erase(xtcp.sockfd);
-    delfd(xtcp.sockfd);
+    return delfd(xtcp.sockfd);
 }
 
 XTcp XEpoll::getEventOccurXTcp(int eventIndex){

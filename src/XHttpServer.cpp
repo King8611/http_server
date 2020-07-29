@@ -24,7 +24,7 @@ void XHttpServer::main(){
     }
 }
 void XHttpServer::run(){
-    int count=epoll.wait(500);
+    int count=epoll.wait(-1);
     for(int i=0;i<count;i++){
         XTcp xtcp=epoll.getEventOccurXTcp(i);
         handle(xtcp);
@@ -33,9 +33,11 @@ void XHttpServer::run(){
 void XHttpServer::handle(XTcp xtcp){
     if(xtcp.sockfd==server.sockfd){
         XTcp client=xtcp.accept();
+        std::cout<<client.sockfd<<" is get"<<std::endl;
         epoll.addXTcp(client);
     }else{
         XHttpClient *client=new XHttpClient(xtcp);
         threadPool.addTask(client);
+        epoll.delXTcp(xtcp);
     }
 }

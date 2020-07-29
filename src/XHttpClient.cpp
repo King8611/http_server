@@ -38,30 +38,32 @@ bool XHttpClient::start(XTcp client){
 
 void XHttpClient::main(){
     char buff[10240];
-    int len=client.recv(buff,sizeof(buff));
-    printf("%s.\n",buff);
-    if(len<=0){
-        return ;
-    }
-    buff[len]=0;
-    if(!res.SetRequest(buff)){
-        return;
-    }
-    std::string  head=res.GetHead();
-    if(client.send(head.c_str(),head.size())<=0){
-        return;
-    }
-
-    int size=sizeof(buff);
     for(;;){
-        int len=res.Read(buff,size);
-        if(len<0){
-            return;
+        int len=client.recv(buff,sizeof(buff));
+        //printf("%s.\n",buff);
+        if(len<=0){
+            break ;
         }
-        if(len==0)break;
-        
-        if(client.send(buff,len)<=0){
-            return ;
+        buff[len]=0;
+        if(!res.SetRequest(buff)){
+            break;
+        }
+        std::string  head=res.GetHead();
+        if(client.send(head.c_str(),head.size())<=0){
+            break;
+        }
+
+        int size=sizeof(buff);
+        for(;;){
+            int len=res.Read(buff,size);
+            if(len<0){
+                break;
+            }
+            if(len==0)break;
+            
+            if(client.send(buff,len)<=0){
+                break ;
+            }
         }
     }
     return;

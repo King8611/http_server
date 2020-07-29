@@ -31,7 +31,7 @@ bool XHttpResponse::SetRequest(string request){
     fseek(fp,0,SEEK_END);
     filesize=ftell(fp);
     fseek(fp,0,0);
-    printf("file size is %d\n",filesize);
+ //   printf("file size is %d\n",filesize);
     return true;
 }
 
